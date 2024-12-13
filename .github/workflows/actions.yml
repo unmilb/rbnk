@@ -138,10 +138,15 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
-          
+
       - name: Update kubeconfig
         run: |
             aws eks update-kubeconfig --region ${{ vars.AWS_REGION }} --name rbnk-poc
+
+      - name: Get repository and branch name
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
 
       # Step 3: Deploy using Helm
       - name: Deploy to Kubernetes
