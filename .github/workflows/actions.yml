@@ -26,8 +26,8 @@ jobs:
         run: |
           echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
         env:
-          DOCKER_REG: ${{vars.AWS_ACC_ID}}.dkr.ecr.${{vars.AWS_REGION}}.amazonaws.com/${{vars.AWS_ECR_DOCKER}}
-          HELM_REG: ${{vars.AWS_ACC_ID}}.dkr.ecr.${{vars.AWS_REGION}}.amazonaws.com/${{vars.AWS_ECR_HELM}}
+          DOCKER_REG: ${{ vars.AWS_ACC_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_DOCKER }}
+          HELM_REG: ${{ vars.AWS_ACC_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_HELM }}
 
       # Step 1: Checkout the code
       - name: Checkout code
@@ -62,12 +62,12 @@ jobs:
       # Step 5: Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t ${{env.DOCKER_REG}}/${{vars.REPO_NAME}}:${GITHUB_REF##*/} .
+          docker build -t ${{ env.DOCKER_REG }}/${{ vars.REPO_NAME }}:${GITHUB_REF##*/} .
 
       # Step 6: Push Docker image (if needed)
       - name: Push Docker image to Docker Hub
         run: |
-          docker push ${{env.DOCKER_REG}}/${{vars.REPO_NAME}}:${GITHUB_REF##*/}
+          docker push ${{ env.DOCKER_REG }}/${{ vars.REPO_NAME }}:${GITHUB_REF##*/}
 
   promote:
     runs-on: ubuntu-latest
@@ -118,5 +118,5 @@ jobs:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
         run: |
           helm upgrade --install $REPO_NAME ./helm-chart \
-            --set image.repository=${{env.DOCKER_REG}}/${{env.REPO_NAME}} \
+            --set image.repository=${{ env.DOCKER_REG }}/${{ env.REPO_NAME }} \
             --set image.tag=${{ github.sha }}
