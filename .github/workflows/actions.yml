@@ -70,8 +70,8 @@ jobs:
         run: |
           REPO_NAME="${GITHUB_REPOSITORY##*/}"         # Extract repo name (owner/repo -> repo)
           BRANCH_NAME="${GITHUB_REF##*/}"              # Extract branch name (refs/heads/branch -> branch)
-          AWS_ACCOUNT_ID=${{vars.AWS_ACC_ID}}
-          AWS_REGION=${{vars.AWS_REGION}}
+          AWS_ACCOUNT_ID="${vars.AWS_ACC_ID}"
+          AWS_REGION="${vars.AWS_REGION}"
           echo "Repository Name: $REPO_NAME"
           echo "Branch Name: $BRANCH_NAME"
           echo "DOCKER_TAG=$REPO_NAME-$BRANCH_NAME" >> $GITHUB_ENV  # Set Docker tag in the environment variable
@@ -87,7 +87,7 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: |
           docker tag $DOCKER_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$DOCKER_TAG
-          docker push $DOCKER_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$DOCKER_TAG
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$DOCKER_TAG
 
   promote:
     runs-on: ubuntu-latest
