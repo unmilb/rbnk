@@ -77,13 +77,13 @@ jobs:
       # Step 5: Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t -t $REPO_NAME:$BRANCH_NAME-${GITHUB_SHA} .
+          docker build -t $REPO_NAME:$BRANCH_NAME .
 
       # Step 6: Push Docker image (if needed)
       - name: Push Docker image to Docker Hub
         run: |
-          docker tag $REPO_NAME:$BRANCH_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME":"$BRANCH_NAME 
-          docker push ${{ env.DOCKER_REG }}/${{ vars.REPO_NAME }}:${GITHUB_REF##*/}
+          docker tag $REPO_NAME:$BRANCH_NAME-${GITHUB_SHA} $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$BRANCH_NAME 
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$BRANCH_NAME
 
   promote:
     runs-on: ubuntu-latest
