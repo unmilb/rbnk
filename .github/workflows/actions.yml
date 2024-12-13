@@ -68,6 +68,7 @@ jobs:
           BRANCH_NAME="${GITHUB_REF##*/}"       # Extract branch name (e.g., main)
           IMAGE_TAG="${BRANCH_NAME}"  # Create image tag with repo, branch, and SHA
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV  # Save to GITHUB_ENV for later use
+          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
 
       # Step 4: Build Docker image
       - name: Build Docker image
