@@ -28,7 +28,7 @@ jobs:
         env:
           DOCKER_REG: ${{ vars.AWS_ACC_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_DOCKER }}
           HELM_REG: ${{ vars.AWS_ACC_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_HELM }}
-          AWS_ACCOUNT_ID: ${{ vars.AWS_ACC_ID }}
+          AWS_ACCOUNT_ID: ${{vars.AWS_ACC_ID}}
           AWS_REGION: ${{vars.AWS_REGION}}
           REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}
 
