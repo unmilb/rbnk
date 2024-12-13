@@ -101,7 +101,7 @@ jobs:
 
       - name: Set Env
         run: |
-          REPO_NAME: $(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
