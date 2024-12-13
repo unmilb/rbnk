@@ -25,7 +25,6 @@ jobs:
       - name: Set ENV variables
         run: |
           echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
-          echo 924039613087.dkr.ecr.ap-south-1.amazonaws.com/docker/rbnk:latest
         env:
           DOCKER_REG: ${{env.AWS_ACC_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/${{env.AWS_ECR_DOCKER}}
           HELM_REG: ${{env.AWS_ACC_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/${{env.AWS_ECR_HELM}}
@@ -47,7 +46,7 @@ jobs:
 
       # Step 4: Run tests (optional)
       - name: Run tests
-        run: mvn test && ls -lhtr target
+        run: mvn test -f rbnk/pom.xml && ls -lhtr target
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
