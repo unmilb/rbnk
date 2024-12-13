@@ -24,13 +24,16 @@ jobs:
       # Step 0: Set Env variables
       - name: Set ENV variables
         run: |
-          echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
+          BRANCH_NAME="${GITHUB_REF##*/}"
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          #echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
         env:
           DOCKER_REG: ${{ vars.AWS_ACC_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_DOCKER }}
           HELM_REG: ${{ vars.AWS_ACC_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_HELM }}
           AWS_ACCOUNT_ID: ${{vars.AWS_ACC_ID}}
           AWS_REGION: ${{vars.AWS_REGION}}
-          REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}
+          REPO_NAME: $(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
+          #REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}
 
       # Step 1: Checkout the code
       - name: Checkout code
@@ -65,11 +68,12 @@ jobs:
       # Step 5: Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:${GITHUB_REF##*/} .
+          docker build -t $REPO_NAME:$BRANCH_NAME .
 
       # Step 6: Push Docker image (if needed)
       - name: Push Docker image to Docker Hub
         run: |
+          docker tag $REPO_NAME:$BRANCH_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME":"$BRANCH_NAME 
           docker push ${{ env.DOCKER_REG }}/${{ vars.REPO_NAME }}:${GITHUB_REF##*/}
 
   promote:
