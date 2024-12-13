@@ -82,12 +82,12 @@ jobs:
       # Step 6: Tag the Docker image for ECR
       - name: Tag Docker image for ECR
         run: |
-          docker tag $IMAGE_TAG ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+          docker tag $IMAGE_TAG ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME:$IMAGE_TAG
 
       # Step 7: Push Docker image to ECR
       - name: Push Docker image to ECR
         run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME:$IMAGE_TAG
 
       # - name: Login to Amazon ECR
       #   id: login-ecr
