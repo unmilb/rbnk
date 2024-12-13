@@ -46,7 +46,7 @@ jobs:
 
       # Step 4: Run tests (optional)
       - name: Run tests
-        run: mvn test -f rbnk/pom.xml && ls -lhtr target
+        run: mvn test -f rbnk/pom.xml 
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
