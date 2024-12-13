@@ -153,4 +153,5 @@ jobs:
         run: |
           helm upgrade --install $REPO_NAME ./helm-chart/rbnk \
             --set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME \
-            --set image.tag=$IMAGE_TAG
+            --set image.tag=$IMAGE_TAG \
+            --kubeconfig ~/.kube/config
