@@ -43,7 +43,7 @@ jobs:
 
       # Step 3: Build the Spring Boot application
       - name: Build with Maven
-        run: mvn clean package -DskipTests
+        run: mvn clean package -DskipTests -f rbnk/pom.xml
 
       # Step 4: Run tests (optional)
       - name: Run tests
