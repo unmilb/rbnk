@@ -28,6 +28,9 @@ jobs:
         env:
           DOCKER_REG: ${{ vars.AWS_ACC_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_DOCKER }}
           HELM_REG: ${{ vars.AWS_ACC_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_HELM }}
+          AWS_ACCOUNT_ID: ${{ vars.AWS_ACC_ID }}
+          AWS_REGION: ${{vars.AWS_REGION}}
+          REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}
 
       # Step 1: Checkout the code
       - name: Checkout code
@@ -62,7 +65,7 @@ jobs:
       # Step 5: Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.DOCKER_REG }}/${{ vars.REPO_NAME }}:${GITHUB_REF##*/} .
+          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:${GITHUB_REF##*/} .
 
       # Step 6: Push Docker image (if needed)
       - name: Push Docker image to Docker Hub
