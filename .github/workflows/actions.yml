@@ -28,7 +28,6 @@ jobs:
         env:
           DOCKER_REG: ${{env.AWS_ACC_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/${{env.AWS_ECR_DOCKER}}
           HELM_REG: ${{env.AWS_ACC_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/${{env.AWS_ECR_HELM}}
-          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
       # Step 1: Checkout the code
       - name: Checkout code
@@ -63,14 +62,14 @@ jobs:
       # Step 5: Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t ${{env.REPO_NAME}}:${{ env.BRANCH_NAME }} .
+          docker build -t ${{env.REPO_NAME}}:${GITHUB_REF##*/} .
 
       # Step 6: Push Docker image (if needed)
       - name: Push Docker image to Docker Hub
         run: |
           #echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker tag ${{env.REPO_NAME}}:${{ env.BRANCH_NAME }} ${{env.DOCKER_REG}}/${{env.REPO_NAME}}:${{ env.BRANCH_NAME }}
-          docker push ${{env.DOCKER_REG}}/${{env.REPO_NAME}}:${{ env.BRANCH_NAME }}
+          docker tag ${{env.REPO_NAME}}:${{ env.BRANCH_NAME }} ${{env.DOCKER_REG}}/${{env.REPO_NAME}}:${GITHUB_REF##*/}
+          docker push ${{env.DOCKER_REG}}/${{env.REPO_NAME}}:${GITHUB_REF##*/}
 
   promote:
     runs-on: ubuntu-latest
