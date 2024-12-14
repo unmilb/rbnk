@@ -10,7 +10,7 @@ on:
       - develop
       - release-*
       - "!main"
-      - "*"
+
 
 jobs:
   build:
