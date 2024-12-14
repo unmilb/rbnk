@@ -1,4 +1,4 @@
-name: Spring Boot CI/CD Workflow
+name: Build
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       # Step 1: Checkout the code
@@ -38,6 +38,7 @@ jobs:
 
       # Step 5: Set up creds
       - name: Configure AWS credentials
+        if: ${{ !github.event.pull_request.draft }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -55,20 +56,24 @@ jobs:
 
       # Step 7: Build Docker image
       - name: Build Docker image
+        if: ${{ !github.event.pull_request.draft }}
         run: |
           docker build -t $IMAGE_TAG .
 
       # Step 8: Login to ECR
       - name: Login to Amazon ECR
+        if: ${{ !github.event.pull_request.draft }}
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       # Step 9: Tag the Docker image for ECR
       - name: Tag Docker image for ECR
+        if: ${{ !github.event.pull_request.draft }}
         run: |
           docker tag $IMAGE_TAG ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME:$IMAGE_TAG
 
       # Step 10: Push Docker image to ECR
       - name: Push Docker image to ECR
+        if: ${{ !github.event.pull_request.draft }}
         run: |
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME:$IMAGE_TAG
