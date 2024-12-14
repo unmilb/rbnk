@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - develop
+      - release-*
+      
   release:
     types: 
       - published # Trigger when a release is published
