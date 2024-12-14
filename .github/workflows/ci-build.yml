@@ -2,6 +2,7 @@ name: Build
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     branches:
       - release-*
 
@@ -10,7 +11,6 @@ on:
       - develop
       - release-*
       - "!main"
-
 
 jobs:
   build:
