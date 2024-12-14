@@ -1,0 +1,50 @@
+name: Spring Boot CD Workflow
+
+on:
+  pull_request:
+    branches:
+      - release-*
+      - main
+  push:
+    branches:
+      - develop
+      - "!main"
+      - "*"
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release-')
+
+        steps:
+        # Step 1: Checkout the code
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        # Step 2: Install Helm
+        - name: Install Helm
+          run: |
+            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ vars.AWS_REGION }}
+
+        - name: Update kubeconfig
+          run: |
+            aws eks update-kubeconfig --region ${{ vars.AWS_REGION }} --name rbnk
+
+        - name: Get repository and branch name
+          run: |
+            REPO_NAME="${GITHUB_REPOSITORY##*/}" 
+            echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+
+        # Step 3: Deploy using Helm
+        - name: Deploy to Kubernetes
+          run: |
+            helm upgrade --install $REPO_NAME ./helm-chart/rbnk \
+            --set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME \
+            --set image.tag=$IMAGE_TAG \
+            --kubeconfig ~/.kube/config

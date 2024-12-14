@@ -9,7 +9,9 @@ on:
     branches:
       - develop
       - release-*
-      - main
+      - "!main"
+      - "*"
+
   workflow_dispatch:
     inputs:
       tag:
@@ -21,20 +23,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # # Step 0: Set Env variables
-      # - name: Set ENV variables
-      #   run: |
-      #     BRANCH_NAME="${GITHUB_REF##*/}"
-      #     REPO_NAME="${GITHUB_REPOSITORY##*/}"
-      #     #echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
-      #   env:
-      #     DOCKER_REG: ${{ vars.AWS_ACC_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_DOCKER }}
-      #     HELM_REG: ${{ vars.AWS_ACC_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_HELM }}
-      #     AWS_ACCOUNT_ID: ${{vars.AWS_ACC_ID}}
-      #     AWS_REGION: ${{vars.AWS_REGION}}
-      #     REPO_NAME: $(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
-      #     #REPO_NAME: ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}
-
       # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
@@ -61,16 +49,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      # Step 3: Get the repository and branch name
+      # Step 5: Get the repository and branch name
       - name: Get repository and branch name
         run: |
-          REPO_NAME="${GITHUB_REPOSITORY##*/}"  # Extract repo name (e.g., my-app)
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"  # Extract repo name (e.g., rnbk)
           BRANCH_NAME="${GITHUB_REF##*/}"       # Extract branch name (e.g., main)
-          IMAGE_TAG="${BRANCH_NAME}"  # Create image tag with repo, branch, and SHA
+          IMAGE_TAG="${BRANCH_NAME}"  # Create image tag with branch
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV  # Save to GITHUB_ENV for later use
           echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
 
-      # Step 4: Build Docker image
+      # Step 6: Build Docker image
       - name: Build Docker image
         run: |
           docker build -t $IMAGE_TAG .
@@ -79,12 +67,12 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Step 6: Tag the Docker image for ECR
+      # Step 7: Tag the Docker image for ECR
       - name: Tag Docker image for ECR
         run: |
           docker tag $IMAGE_TAG ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME:$IMAGE_TAG
 
-      # Step 7: Push Docker image to ECR
+      # Step 8: Push Docker image to ECR
       - name: Push Docker image to ECR
         run: |
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME:$IMAGE_TAG
@@ -117,41 +105,3 @@ jobs:
           git tag -a ${{ github.event.inputs.tag }} -m "Release ${{ github.event.inputs.tag }}"
           git push origin ${{ github.event.inputs.tag }}
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release-')
-
-    steps:
-      # Step 1: Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Step 2: Install Helm
-      - name: Install Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Update kubeconfig
-        run: |
-            aws eks update-kubeconfig --region ${{ vars.AWS_REGION }} --name rbnk
-
-      - name: Get repository and branch name
-        run: |
-          REPO_NAME="${GITHUB_REPOSITORY##*/}"
-          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
-
-      # Step 3: Deploy using Helm
-      - name: Deploy to Kubernetes
-        run: |
-          helm upgrade --install $REPO_NAME ./helm-chart/rbnk \
-            --set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME \
-            --set image.tag=$IMAGE_TAG \
-            --kubeconfig ~/.kube/config
