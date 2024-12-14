@@ -43,7 +43,7 @@ jobs:
             echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV  
             echo "Tag Name: $GITHUB_REF"
             echo "Repo Name: $REPO_NAME"
-            
+
         - name: Determine Environment
           id: set-env
           run: |
@@ -64,3 +64,4 @@ jobs:
             helm upgrade --install $REPO_NAME -n $env ./helm-chart/rbnk \
             --set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME \
             --set image.tag=$TAG_NAME
+            
