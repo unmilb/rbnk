@@ -141,7 +141,7 @@ jobs:
 
       - name: Update kubeconfig
         run: |
-            aws eks update-kubeconfig --region ${{ vars.AWS_REGION }} --name rbnk-poc
+            aws eks update-kubeconfig --region ${{ vars.AWS_REGION }} --name rbnk
 
       - name: Get repository and branch name
         run: |
