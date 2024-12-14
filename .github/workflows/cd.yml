@@ -4,10 +4,11 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - main
 jobs:
     deploy:
         runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release-')
 
         steps:
         # Step 1: Checkout the code
