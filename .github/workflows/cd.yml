@@ -4,11 +4,15 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - main
+  release:
+    types: 
+      - published # Trigger when a release is published
+      - edited    # Trigger when a release is edited
+      - created   # Trigger when a release is created
+
 jobs:
     deploy:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
 
         steps:
         # Step 1: Checkout the code
