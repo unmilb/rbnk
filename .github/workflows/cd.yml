@@ -1,15 +1,12 @@
-name: Spring Boot CD Workflow
+name: Prod CD Workflow
 
 on:
   pull_request:
     branches:
-      - release-*
       - main
   push:
-    branches:
-      - develop
-      - "!main"
-      - "*"
+    tags:
+      - 'v*'
 jobs:
     deploy:
         runs-on: ubuntu-latest
@@ -20,7 +17,7 @@ jobs:
         - name: Checkout code
           uses: actions/checkout@v3
 
-        # Step 2: Install Helm
+        # Step 3: Install Helm
         - name: Install Helm
           run: |
             curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
@@ -36,15 +33,18 @@ jobs:
           run: |
             aws eks update-kubeconfig --region ${{ vars.AWS_REGION }} --name rbnk
 
-        - name: Get repository and branch name
+        - name: Get repository and tag name
           run: |
             REPO_NAME="${GITHUB_REPOSITORY##*/}" 
             echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+            TAG_NAME=${GITHUB_REF##*/} # Extract tag name from GITHUB_REF
+            echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV  
+            echo "Tag Name: $GITHUB_REF"
+            echo "Repo Name: $REPO_NAME"
 
         # Step 3: Deploy using Helm
         - name: Deploy to Kubernetes
           run: |
             helm upgrade --install $REPO_NAME ./helm-chart/rbnk \
             --set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME \
-            --set image.tag=$IMAGE_TAG \
-            --kubeconfig ~/.kube/config
+            --set image.tag=$TAG_NAME
