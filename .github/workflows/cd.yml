@@ -1,9 +1,6 @@
 name: Prod CD Workflow
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
     tags:
       - 'v*'
