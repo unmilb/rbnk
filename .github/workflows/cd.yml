@@ -1,9 +1,9 @@
-name: Prod CD Workflow
+name: CD Workflow
 
 on:
   workflow_run:
     workflows:
-      - Build
+      - CI Workflow
     types:
       - completed
 
