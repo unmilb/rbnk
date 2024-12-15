@@ -53,7 +53,7 @@ jobs:
           run: |
               if [[ "${{ github.ref_name }}" == "main" ]]; then
                 echo "env=prod" >> $GITHUB_ENV
-              elif [[ "${{ github.ref_name }}" == "release*" ]]; then
+              elif [[ "${{ github.ref_name }}" =~ ^release- ]]; then
                 echo "env=staging" >> $GITHUB_ENV
               else
                 echo "env=dev" >> $GITHUB_ENV
