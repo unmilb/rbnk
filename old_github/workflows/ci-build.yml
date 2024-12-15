@@ -1,10 +1,10 @@
-name: CICD Workflow
+name: CI Workflow
 
 on:
-  # pull_request:
-  #   types: [opened, synchronize, reopened]
-  #   branches:
-  #     - release-*
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - release-*
 
   push:
     branches:
@@ -77,59 +77,4 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         run: |
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME:$IMAGE_TAG
-
-  deploy:
-    runs-on: ubuntu-24.04
-    needs: [build]
-    
-    steps:
-    # Step 1: Checkout the code
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    # Step 3: Install Helm
-    - name: Install Helm
-      run: |
-        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ vars.AWS_REGION }}
-
-    - name: Update kubeconfig
-      run: |
-        aws eks update-kubeconfig --region ${{ vars.AWS_REGION }} --name rbnk
-
-    - name: Get repository and tag name
-      run: |
-        REPO_NAME="${GITHUB_REPOSITORY##*/}" 
-        echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
-        TAG_NAME=${GITHUB_REF##*/} # Extract tag name from GITHUB_REF
-        echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV  
-        echo "Tag Name: $GITHUB_REF"
-        echo "Repo Name: $REPO_NAME"
-
-    - name: Determine Environment
-      id: set-env
-      run: |
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "env=prod" >> $GITHUB_ENV
-          elif [[ "${{ github.ref_name }}" =~ ^release- ]]; then
-            echo "env=staging" >> $GITHUB_ENV
-          else
-            echo "env=dev" >> $GITHUB_ENV
-          fi
-
-    - name: Use Environment Variable
-      run: echo "The environment is $env"
-
-    # Step 3: Deploy using Helm
-    - name: Deploy to Kubernetes
-      run: |
-        helm upgrade --install $REPO_NAME -n $env ./helm-chart/rbnk \
-        --set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME \
-        --set image.tag=$TAG_NAME
           
