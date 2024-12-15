@@ -10,7 +10,7 @@ on:
     branches:
       - develop
       - release-*
-      - "!main"
+      - main
 
 jobs:
   build:
@@ -137,6 +137,6 @@ jobs:
         else
           helm upgrade --install $REPO_NAME -n $env ./helm-chart/rbnk \
           --set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/docker/$REPO_NAME \
-          --set ingress.hosts[0].host=unmil.co.in,ingress.hosts[0].paths[0].path=/$env,ingress.hosts[0].host=unmil.co.in,ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
+          --set ingress.hosts[0].host=$env.unmil.co.in,ingress.hosts[0].paths[0].path=/,ingress.hosts[0].host=$env.unmil.co.in,ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
           --set image.tag=$TAG_NAME
         fi
