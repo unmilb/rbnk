@@ -85,6 +85,7 @@ jobs:
   deploy:
     runs-on: ubuntu-24.04
     needs: [build]
+    if: ${{ github.event_name != 'pull_request' }} # Skip deploy if the event is a PR
     
     steps:
       # Step 1: Checkout the code
