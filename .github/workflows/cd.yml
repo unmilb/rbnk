@@ -14,11 +14,9 @@ on:
       - develop
       - release-*
       
-  # release:
-  #   types: 
-  #     - published # Trigger when a release is published
-  #     - edited    # Trigger when a release is edited
-  #     - created   # Trigger when a release is created
+  release:
+    types: 
+      - created   # Trigger when a release is created
 
 jobs:
     deploy:
