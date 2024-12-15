@@ -1,6 +1,12 @@
 name: Prod CD Workflow
 
 on:
+  workflow_run:
+    workflows:
+      - Build
+    types:
+      - completed
+
   push:
     tags:
       - 'v*'
@@ -17,7 +23,9 @@ on:
 jobs:
     deploy:
         runs-on: ubuntu-24.04
-
+        needs: []
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        
         steps:
         # Step 1: Checkout the code
         - name: Checkout code
